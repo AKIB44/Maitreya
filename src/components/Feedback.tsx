@@ -6,7 +6,6 @@ const FeedbackButton = () => {
 
     const handleSubmit = () => {
         console.log('User Feedback:', feedback);
-        // You can send this feedback to your server or analytics
         setIsOpen(false);
         setFeedback('');
     };
