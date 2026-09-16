@@ -9,7 +9,6 @@ import Footer from '@/components/Footer';
 import WaveDivider from "@/components/waveDivider";
 import Testimonials from "@/components/testimonials";
 import ScrollToHash from "@/components/scrollToHash";
-import InstagramSection from "@/components/InstagramSection";
 
 
 const Index = () => {
@@ -27,7 +26,6 @@ const Index = () => {
                 <WaveDivider flip color="#fef9f6" />
                 <Services />
                 <Testimonials />
-                <InstagramSection />
                 <CallToAction />
             </main>
             <Footer />

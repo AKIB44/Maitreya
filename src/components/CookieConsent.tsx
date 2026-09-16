@@ -45,7 +45,7 @@ const CookieConsent = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.4 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 px-4"
                 >
                     <div className="w-full max-w-md bg-white p-5 rounded-xl shadow-2xl border border-gray-200 text-sm">
                         <p className="text-gray-800 mb-4">
