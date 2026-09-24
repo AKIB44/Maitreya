@@ -36,7 +36,7 @@
 
 // const Gallery = () => {
 //     useEffect(() => {
-//         document.title = "Gallery - Maitreya Resort";
+//         document.title = "Gallery - Maitreya Beach Resort";
 //     }, []);
 
 //     return (
@@ -48,11 +48,11 @@
 //                         <div className="text-center max-w-3xl mx-auto mb-12">
 //                             <h2 className="text-sm uppercase tracking-widest text-resort-gold mb-2">Photo Gallery</h2>
 //                             <h3 className="font-playfair text-3xl md:text-4xl font-bold mb-6">
-//                                 Explore Maitreya Resort
+//                                 Explore Maitreya Beach Resort
 //                             </h3>
 //                             <p className="text-resort-dark/80">
 //                                 Take a visual journey through our luxurious resort. Browse our gallery to get a glimpse of our elegant
-//                                 accommodations, stunning facilities, and the serene surroundings that make Maitreya Resort a paradise.
+//                                 accommodations, stunning facilities, and the serene surroundings that make Maitreya Beach Resort a paradise.
 //                             </p>
 //                         </div>
 //                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -81,7 +81,6 @@ import resortView from '@/assets/Night_View.jpeg';
 import bannerImg from '@/assets/Main_Banner_Img.jpeg';
 import deluxeRoom from '@/assets/Room_Img_Deluxe.jpeg';
 import classicRoom from '@/assets/Room_Img_4.jpeg';
-import swimmingPool from '@/assets/Swimming_Pool.jpeg';
 import restaurant from '@/assets/Dining_Section.jpeg';
 import lobby from '@/assets/lobby.jpeg';
 import dish1 from '@/assets/Food_Img_1.jpeg';
@@ -105,7 +104,6 @@ const categoryImages = [
     { category: "Our Fish Specials", image: dish1 },
     { category: "Veg Specials", image: dish2 },
     { category: "Sweets", image: sweets },
-    { category: "Swimming Pool", image: swimmingPool },
     { category: "Dining Area", image: restaurant },
     { category: "Lobby", image: lobby },
     { category: "Dedicated Parking", image: parking },
@@ -171,7 +169,7 @@ const Gallery = () => {
     const [category, setCategory] = useState<string>('');
 
     useEffect(() => {
-        document.title = "Gallery - Maitreya Resort";
+        document.title = "Gallery - Maitreya Beach Resort";
     }, []);
 
     return (
@@ -183,11 +181,11 @@ const Gallery = () => {
                         <div className="text-center max-w-3xl mx-auto mb-12">
                             <h2 className="text-sm uppercase tracking-widest text-resort-gold mb-2">Photo Gallery</h2>
                             <h3 className="font-playfair text-3xl md:text-4xl font-bold mb-6">
-                                Explore Maitreya Resort
+                                Explore Maitreya Beach Resort
                             </h3>
                             <p className="text-resort-dark/80">
                                 Take a visual journey through our luxurious resort. Browse our gallery to get a glimpse of our elegant
-                                accommodations, stunning facilities, and the serene surroundings that make Maitreya Resort a paradise.
+                                accommodations, stunning facilities, and the serene surroundings that make Maitreya Beach Resort a paradise.
                             </p>
                         </div>
 

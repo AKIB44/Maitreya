@@ -199,7 +199,10 @@ const Navbar = () => {
         }
     };
 
-    const linkClass = isScrolled ? "text-resort-dark hover:text-resort-gold" : "text-white hover:text-resort-gold";
+    const isHome = location.pathname === '/';
+    const showSolidNav = isScrolled || !isHome;
+
+    const linkClass = showSolidNav ? "text-resort-dark hover:text-resort-gold" : "text-white hover:text-resort-gold";
 
     const mobileNavVariants = {
         hidden: { opacity: 0, y: 10 },
@@ -231,13 +234,13 @@ const Navbar = () => {
                 style={{ width: `${scrollProgress}%`, transition: 'width 0.2s ease-out' }}
             ></div>
 
-            <div className={cn("transition-all duration-300 w-full", isScrolled ? "bg-white shadow-md py-2" : "bg-transparent py-4")}>
+            <div className={cn("transition-all duration-300 w-full", showSolidNav ? "bg-white shadow-md py-2" : "bg-transparent py-4")}>
                 <div className="resort-container flex items-center justify-between">
                     {/* Logo */}
                     <Link to="/" className="flex items-center">
                         <div className="relative">
                             <span className={cn("text-2xl md:text-3xl font-playfair font-bold", linkClass)}>Maitreya</span>
-                            <span className="absolute -bottom-2 right-0 text-xs uppercase tracking-widest text-resort-gold">Resort</span>
+                            <span className="absolute -bottom-2 right-0 text-xs uppercase tracking-widest text-resort-gold">Beach Resort</span>
                         </div>
                     </Link>
 

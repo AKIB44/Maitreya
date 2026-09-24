@@ -145,7 +145,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import WaveDivider from "@/components/waveDivider";
-import { Utensils, Wifi, Coffee, Car, Waves, Smile } from 'lucide-react';
+import { Utensils, Wifi, Coffee, Car, Smile } from 'lucide-react';
 
 const serviceItems = [
     {
@@ -162,11 +162,6 @@ const serviceItems = [
         icon: <Coffee size={40} className="text-resort-gold" />,
         title: "In-room Service",
         description: "Order anytime. Fresh meals and beverages at your convenience."
-    },
-    {
-        icon: <Waves size={40} className="text-resort-gold" />,
-        title: "Swimming Pool",
-        description: "Enjoy our beautifully designed pool with lush surroundings."
     },
     {
         icon: <Car size={40} className="text-resort-gold" />,
@@ -230,7 +225,7 @@ const Services = () => {
                         Premium Services for Unforgettable Memories
                     </h3>
                     <p className="text-resort-dark/80">
-                        Discover a range of luxurious amenities designed to elevate your stay at Maitreya Resort.
+                        Discover a range of luxurious amenities designed to elevate your stay at Maitreya Beach Resort.
                     </p>
                 </div>
 

@@ -1,5 +1,5 @@
 // import React from 'react';
-import { Facebook, Twitter, Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin } from 'lucide-react';
 
 const Footer = () => {
     return (
@@ -21,20 +21,9 @@ const Footer = () => {
                             </a>
                         </div>
                         <p className="text-white/70 mb-4">
-                            Discover luxury and comfort in every detail at Maitreya Resort.
+                            Discover luxury and comfort in every detail at Maitreya Beach Resort.
                             Your journey to relaxation and rejuvenation begins here.
                         </p>
-                        <div className="flex space-x-4">
-                            <a href="#" className="text-white/70 hover:text-resort-gold transition-colors">
-                                <Facebook size={20} />
-                            </a>
-                            <a href="#" className="text-white/70 hover:text-resort-gold transition-colors">
-                                <Twitter size={20} />
-                            </a>
-                            <a href="#" className="text-white/70 hover:text-resort-gold transition-colors">
-                                <Instagram size={20} />
-                            </a>
-                        </div>
                     </div>
 
                     {/* Quick Links Column */}
@@ -70,8 +59,14 @@ const Footer = () => {
                             </li>
                             <li className="flex items-center">
                                 <Phone className="mr-3 text-resort-gold" size={18} />
-                                <a href="tel:+1234567890" className="text-white/70 hover:text-resort-gold transition-colors">
+                                <a href="tel:+917770082668" className="text-white/70 hover:text-resort-gold transition-colors">
                                     077700 82668
+                                </a>
+                            </li>
+                            <li className="flex items-center">
+                                <Phone className="mr-3 text-resort-gold" size={18} />
+                                <a href="tel:+919372737123" className="text-white/70 hover:text-resort-gold transition-colors">
+                                    9372737123
                                 </a>
                             </li>
                             <li className="flex items-center">
@@ -108,7 +103,7 @@ const Footer = () => {
             <div className="border-t border-white/10 animate-fade-in-up delay-700">
                 <div className="resort-container py-6 flex flex-col md:flex-row justify-between items-center">
                     <p className="text-white/60 text-sm">
-                        © {new Date().getFullYear()} Maitreya Resort. All rights reserved.
+                        © {new Date().getFullYear()} Maitreya Beach Resort. All rights reserved.
                     </p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
                         <a href="#" className="text-white/60 hover:text-resort-gold text-sm transition-colors">Privacy Policy</a>

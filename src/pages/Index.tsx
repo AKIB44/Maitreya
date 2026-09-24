@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import WaveDivider from "@/components/waveDivider";
 import Testimonials from "@/components/testimonials";
 import ScrollToHash from "@/components/scrollToHash";
+import GuestExperiences from "@/components/GuestExperiences";
 
 
 const Index = () => {
@@ -25,6 +26,7 @@ const Index = () => {
                 <AboutSection />
                 <WaveDivider flip color="#fef9f6" />
                 <Services />
+                <GuestExperiences />
                 <Testimonials />
                 <CallToAction />
             </main>

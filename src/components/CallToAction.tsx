@@ -12,7 +12,7 @@ const CallToAction = () => {
             <div className="resort-container">
                 <div className="max-w-3xl mx-auto text-center text-white">
                     <h2 className="font-playfair text-3xl md:text-4xl font-bold mb-6">
-                        Experience the Luxury of Maitreya Resort Today
+                        Experience the Luxury of Maitreya Beach Resort Today
                     </h2>
 
                     <p className="text-lg opacity-90 mb-8">

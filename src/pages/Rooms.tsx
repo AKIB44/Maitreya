@@ -30,7 +30,7 @@
 
 // const Rooms = () => {
 //     useEffect(() => {
-//         document.title = "Rooms & Suites - Maitreya Resort";
+//         document.title = "Rooms & Suites - Maitreya Beach Resort";
 //     }, []);
 
 //     return (
@@ -169,7 +169,7 @@
 //     const [modalImage, setModalImage] = useState<string | null>(null);
 
 //     useEffect(() => {
-//         document.title = "Rooms & Suites - Maitreya Resort";
+//         document.title = "Rooms & Suites - Maitreya Beach Resort";
 
 //         const handleEscape = (e: KeyboardEvent) => {
 //             if (e.key === 'Escape') setModalImage(null);
@@ -320,7 +320,7 @@ const Rooms = () => {
     const [selectedCategory, setSelectedCategory] = useState("All");
 
     useEffect(() => {
-        document.title = "Rooms & Suites - Maitreya Resort";
+        document.title = "Rooms & Suites - Maitreya Beach Resort";
     }, []);
 
     const filteredRooms =

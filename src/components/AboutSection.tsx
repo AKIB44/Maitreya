@@ -23,6 +23,7 @@ const AboutSection = () => {
     const [years, setYears] = useState(0);
     const [rooms, setRooms] = useState(0);
     const [guests, setGuests] = useState(0);
+    const [statsAnimated, setStatsAnimated] = useState(false);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -35,27 +36,28 @@ const AboutSection = () => {
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    useEffect(() => {
-        // Animate numbers when loaded
-        const animateValue = (setFn: (val: number) => void, target: number, duration = 1000) => {
-            let start = 0;
-            const increment = target / (duration / 10);
-            const step = () => {
-                start += increment;
-                if (start < target) {
-                    setFn(Math.ceil(start));
-                    setTimeout(step, 10);
-                } else {
-                    setFn(target);
-                }
-            };
-            step();
+    const animateValue = (setFn: (val: number) => void, target: number, duration = 1800) => {
+        let start = 0;
+        const increment = target / (duration / 10);
+        const step = () => {
+            start += increment;
+            if (start < target) {
+                setFn(Math.ceil(start));
+                setTimeout(step, 10);
+            } else {
+                setFn(target);
+            }
         };
+        step();
+    };
 
-        animateValue(setYears, 15);
-        animateValue(setRooms, 45);
-        animateValue(setGuests, 5000);
-    }, []);
+    const handleStatsInView = () => {
+        if (statsAnimated) return;
+        setStatsAnimated(true);
+        animateValue(setYears, 15, 1200);
+        animateValue(setRooms, 20, 1500);
+        animateValue(setGuests, 5000, 2000);
+    };
 
     return (
         <section id="about" className="py-20 bg-resort-light overflow-hidden relative">
@@ -85,12 +87,12 @@ const AboutSection = () => {
                         </motion.h3>
 
                         <motion.p variants={fadeInUp} custom={3}>
-                            Located in the picturesque town of Diveagar, Maharashtra, Maitreya Resort offers the perfect
+                            Located in the picturesque town of Diveagar, Maharashtra, Maitreya Beach Resort offers the perfect
                             blend of nature, serenity, and modern elegance...
                         </motion.p>
 
                         <motion.p variants={fadeInUp} custom={4}>
-                            With 45 beautifully designed rooms, a sparkling swimming pool, and cozy coffee spaces,
+                            With 20 beautifully designed rooms, a sparkling swimming pool, and cozy coffee spaces,
                             we create experiences that are truly unforgettable.
                         </motion.p>
 
@@ -102,6 +104,8 @@ const AboutSection = () => {
                             variants={fadeInUp}
                             custom={6}
                             className="mt-8 flex flex-col sm:flex-row gap-6"
+                            viewport={{ once: true, amount: 0.5 }}
+                            onViewportEnter={handleStatsInView}
                         >
                             <div className="border-l-4 border-resort-gold pl-4 py-2">
                                 <h4 className="font-bold text-3xl font-playfair">{years}+</h4>
@@ -133,7 +137,7 @@ const AboutSection = () => {
                     >
                         <motion.img
                             src={lobbyImage}
-                            alt="Maitreya Resort View"
+                            alt="Maitreya Beach Resort View"
                             className="w-full h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
                             onLoad={() => setImgLoaded(true)}
                             loading="lazy"
