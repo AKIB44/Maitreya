@@ -253,6 +253,12 @@ const Navbar = () => {
                                 <button key={id} onClick={() => handleNavLinkClick(id)} className={cn("nav-link", linkClass)}>{label}</button>
                             )
                         )}
+                        <Link
+                            to="/booking"
+                            className="px-5 py-2 rounded-md bg-resort-gold text-white font-medium hover:bg-resort-gold/90 transition-colors"
+                        >
+                            Book Now
+                        </Link>
                         <ThemeToggle />
                     </nav>
 
@@ -282,6 +288,13 @@ const Navbar = () => {
                                 {label}
                             </motion.button>
                         ))}
+                        <Link
+                            to="/booking"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="px-5 py-2 rounded-md bg-resort-gold text-white font-medium hover:bg-resort-gold/90 transition-colors"
+                        >
+                            Book Now
+                        </Link>
                         <ThemeToggle />
                     </div>
                 </motion.div>

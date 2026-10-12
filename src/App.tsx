@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Rooms from "./pages/Rooms";
 import Gallery from "./pages/Gallery";
+import Booking from "./pages/Booking";
 import NotFound from "./pages/NotFound";
 
 import ScrollToTop from '@/components/scrollToTop';
@@ -69,6 +70,7 @@ const App = () => {
                         <Route path="/" element={<Index />} />
                         <Route path="/rooms" element={<Rooms />} />
                         <Route path="/gallery" element={<Gallery />} />
+                        <Route path="/booking" element={<Booking />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                     <CookieConsent />

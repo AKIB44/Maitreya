@@ -7,6 +7,10 @@
     "trailingSlash": false,
     "rewrites": [
         {
+            "source": "/v1/:path*",
+            "destination": "https://app.maitreyabeachresort.in/v1/:path*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

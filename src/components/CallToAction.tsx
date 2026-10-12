@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 const CallToAction = () => {
@@ -21,10 +22,10 @@ const CallToAction = () => {
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-4">
-                        {/* <a href="#book-now" className="btn-primary">
+                        <Link to="/booking" className="btn-primary">
                             Reserve Your Room
                             <ArrowRight className="ml-2" size={18} />
-                        </a> */}
+                        </Link>
                         <a href="#contact" className="btn-secondary">
                             Contact Us
                         </a>

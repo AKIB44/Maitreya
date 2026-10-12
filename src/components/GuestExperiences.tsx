@@ -9,21 +9,22 @@ import { Quote } from 'lucide-react';
 
 import guestVisit1 from '@/assets/Guest_Visit_1.jpg';
 import guestVisit2 from '@/assets/Guest_Visit_2.jpg';
+import guestVisit2Alt from '@/assets/Guest_Visit_2_alt.jpg';
 import guestVisit3 from '@/assets/Guest_Visit_3.jpg';
 
 const guestExperiences = [
     {
-        image: guestVisit1,
+        images: [guestVisit1],
         name: 'Weekend Getaway Group',
         quote: 'A memorable stay right by the beach — warm hospitality and a beautifully lit property at night.',
     },
     {
-        image: guestVisit2,
+        images: [guestVisit2, guestVisit2Alt],
         name: 'College Friends Trip',
         quote: 'Had an amazing time with the whole group. Great rooms, great vibes, and a resort we\'ll never forget.',
     },
     {
-        image: guestVisit3,
+        images: [guestVisit3],
         name: 'Family & Friends Reunion',
         quote: 'Perfect place for a big group gathering. Everyone had a wonderful time exploring Diveagar from here.',
     },
@@ -72,13 +73,24 @@ const GuestExperiences = () => {
                         {guestExperiences.map((guest, index) => (
                             <SwiperSlide key={index}>
                                 <div className="bg-white rounded-lg shadow-lg overflow-hidden group h-full">
-                                    <div className="overflow-hidden">
-                                        <img
-                                            src={guest.image}
-                                            alt={guest.name}
-                                            className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-105"
-                                            loading="lazy"
-                                        />
+                                    <div className="relative overflow-hidden h-72">
+                                        {guest.images.map((img, imgIndex) => {
+                                            const hasMultiple = guest.images.length > 1;
+                                            const visibilityClass = !hasMultiple
+                                                ? 'opacity-100'
+                                                : imgIndex === 0
+                                                    ? 'opacity-100 group-hover:opacity-0'
+                                                    : 'opacity-0 group-hover:opacity-100';
+                                            return (
+                                                <img
+                                                    key={imgIndex}
+                                                    src={img}
+                                                    alt={`${guest.name} ${imgIndex + 1}`}
+                                                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${visibilityClass}`}
+                                                    loading="lazy"
+                                                />
+                                            );
+                                        })}
                                     </div>
                                     <div className="p-6">
                                         <Quote className="text-resort-gold mb-3" size={24} />
