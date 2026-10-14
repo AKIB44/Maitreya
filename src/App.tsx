@@ -21,7 +21,6 @@ import mixpanel, { initMixpanel, trackEvent, identifyUser } from '@/lib/mixpanel
 import useScrollTracker from "./hooks/useScrollTracker";
 import ConsentBanner from './components/ConsentBanner';
 import GDPRConsentBanner from '@/components/GDPRConsentBanner';
-import WhatsAppChat from '@/components/WhatsAppChat';
 
 
 const queryClient = new QueryClient();
@@ -74,7 +73,6 @@ const App = () => {
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                     <CookieConsent />
-                    <WhatsAppChat />
                 </BrowserRouter>
             </TooltipProvider>
         </QueryClientProvider>

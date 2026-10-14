@@ -42,6 +42,14 @@ interface StayInfo {
 
 const toIsoDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
+const isValidPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
+    return /^[6-9]\d{9}$/.test(normalized);
+};
+
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 const Booking = () => {
     useEffect(() => {
         document.title = 'Book Your Stay - Maitreya Beach Resort';
@@ -171,6 +179,14 @@ const Booking = () => {
         }
         if (!name.trim() || !phone.trim()) {
             setFormError('Please enter your name and phone number.');
+            return;
+        }
+        if (!isValidPhone(phone)) {
+            setFormError('Please enter a valid 10-digit mobile number.');
+            return;
+        }
+        if (email.trim() && !isValidEmail(email.trim())) {
+            setFormError('Please enter a valid email address.');
             return;
         }
 
@@ -463,9 +479,11 @@ const Booking = () => {
                                             <Input
                                                 id="phone"
                                                 type="tel"
+                                                inputMode="numeric"
                                                 value={phone}
                                                 onChange={(e) => setPhone(e.target.value)}
                                                 placeholder="+91 9XXXXXXXXX"
+                                                maxLength={16}
                                                 required
                                             />
                                         </div>
