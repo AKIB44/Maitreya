@@ -42,30 +42,12 @@ interface StayInfo {
 
 const toIsoDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-const isValidPhone = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    const normalized = digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
-    return /^[6-9]\d{9}$/.test(normalized);
-};
+const isValidPhone = (value: string) => /^[6-9]\d{9}$/.test(value);
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-/** Allows digits, a leading +, spaces and dashes for formatting, but caps the
- * actual digit count at 12 (covers a bare 10-digit number or a 91-prefixed one) —
- * so the field itself can't be typed full of junk before validation ever runs. */
-const sanitizePhoneInput = (value: string) => {
-    const allowedChars = value.replace(/[^\d+\s-]/g, '');
-    let digitCount = 0;
-    let result = '';
-    for (const ch of allowedChars) {
-        if (/\d/.test(ch)) {
-            if (digitCount >= 12) continue;
-            digitCount++;
-        }
-        result += ch;
-    }
-    return result;
-};
+/** Digits only, hard-capped at 10 — a plain Indian mobile number, no country code. */
+const sanitizePhoneInput = (value: string) => value.replace(/\D/g, '').slice(0, 10);
 
 const Booking = () => {
     useEffect(() => {
@@ -328,7 +310,7 @@ const Booking = () => {
                                     </div>
                                 </div>
                             ) : (
-                            <form onSubmit={handleSubmit} className="space-y-8">
+                                <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Honeypot field — hidden from real users */}
                                     <input
                                         type="text"
@@ -507,8 +489,7 @@ const Booking = () => {
                                                 value={phone}
                                                 onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
                                                 onBlur={() => setPhoneTouched(true)}
-                                                placeholder="+91 9XXXXXXXXX"
-                                                maxLength={15}
+                                                maxLength={10}
                                                 aria-invalid={phoneInvalid}
                                                 className={cn(phoneInvalid && 'border-red-500 focus-visible:ring-red-500')}
                                                 required
