@@ -50,6 +50,23 @@ const isValidPhone = (value: string) => {
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+/** Allows digits, a leading +, spaces and dashes for formatting, but caps the
+ * actual digit count at 12 (covers a bare 10-digit number or a 91-prefixed one) —
+ * so the field itself can't be typed full of junk before validation ever runs. */
+const sanitizePhoneInput = (value: string) => {
+    const allowedChars = value.replace(/[^\d+\s-]/g, '');
+    let digitCount = 0;
+    let result = '';
+    for (const ch of allowedChars) {
+        if (/\d/.test(ch)) {
+            if (digitCount >= 12) continue;
+            digitCount++;
+        }
+        result += ch;
+    }
+    return result;
+};
+
 const Booking = () => {
     useEffect(() => {
         document.title = 'Book Your Stay - Maitreya Beach Resort';
@@ -65,6 +82,8 @@ const Booking = () => {
     const [email, setEmail] = useState('');
     const [notes, setNotes] = useState('');
     const [website, setWebsite] = useState(''); // honeypot
+    const [phoneTouched, setPhoneTouched] = useState(false);
+    const [emailTouched, setEmailTouched] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
     const [confirmation, setConfirmation] = useState<{
         requestId: string;
@@ -168,6 +187,8 @@ const Booking = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setFormError(null);
+        setPhoneTouched(true);
+        setEmailTouched(true);
 
         if (!checkIn || !checkOut) {
             setFormError('Please select your check-in and check-out dates.');
@@ -229,6 +250,9 @@ const Booking = () => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    const phoneInvalid = phoneTouched && phone.trim() !== '' && !isValidPhone(phone);
+    const emailInvalid = emailTouched && email.trim() !== '' && !isValidEmail(email.trim());
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -481,11 +505,17 @@ const Booking = () => {
                                                 type="tel"
                                                 inputMode="numeric"
                                                 value={phone}
-                                                onChange={(e) => setPhone(e.target.value)}
+                                                onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
+                                                onBlur={() => setPhoneTouched(true)}
                                                 placeholder="+91 9XXXXXXXXX"
-                                                maxLength={16}
+                                                maxLength={15}
+                                                aria-invalid={phoneInvalid}
+                                                className={cn(phoneInvalid && 'border-red-500 focus-visible:ring-red-500')}
                                                 required
                                             />
+                                            {phoneInvalid && (
+                                                <p className="text-xs text-red-600 mt-1">Enter a valid 10-digit mobile number.</p>
+                                            )}
                                         </div>
                                     </div>
 
@@ -496,8 +526,14 @@ const Booking = () => {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
+                                            onBlur={() => setEmailTouched(true)}
                                             placeholder="you@example.com"
+                                            aria-invalid={emailInvalid}
+                                            className={cn(emailInvalid && 'border-red-500 focus-visible:ring-red-500')}
                                         />
+                                        {emailInvalid && (
+                                            <p className="text-xs text-red-600 mt-1">Enter a valid email address.</p>
+                                        )}
                                     </div>
 
                                     <div>

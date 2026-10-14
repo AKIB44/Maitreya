@@ -11,13 +11,13 @@
             "destination": "https://app.maitreyabeachresort.in/v1/:path*"
         },
         {
-            "source": "/(.*)",
-            "destination": "/index.html"
+            "source": "/((?!assets/|robots\\.txt|placeholder\\.svg).*)",
+            "destination": "/"
         }
     ],
     "headers": [
         {
-            "source": "/(.*)",
+            "source": "/assets/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
