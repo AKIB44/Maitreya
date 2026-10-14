@@ -31,6 +31,32 @@ export interface BookingIntakeResponse {
     request_id: string;
     status: string;
     message: string;
+    total_amount: number;
+    advance_amount: number;
+    advance_percent: number;
+    nights: number;
+    currency: string;
+    payment_required: boolean;
+}
+
+export interface PaymentOrderResponse {
+    order_id: string;
+    amount: number;
+    currency: string;
+    key_id: string;
+    booking_id: string;
+}
+
+export interface PaymentVerifyPayload {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
+
+export interface PaymentVerifyResponse {
+    ok: boolean;
+    status: string;
+    message: string;
 }
 
 async function parseErrorMessage(res: Response): Promise<string> {
@@ -62,4 +88,54 @@ export async function submitBookingIntake(payload: BookingIntakePayload): Promis
         throw new Error(await parseErrorMessage(res));
     }
     return res.json();
+}
+
+export async function createPaymentOrder(bookingId: string): Promise<PaymentOrderResponse> {
+    const res = await fetch(`${API_BASE_URL}/v1/public/bookings/${bookingId}/payment-order`, {
+        method: 'POST',
+    });
+    if (!res.ok) {
+        throw new Error(await parseErrorMessage(res));
+    }
+    return res.json();
+}
+
+export async function verifyPayment(bookingId: string, payload: PaymentVerifyPayload): Promise<PaymentVerifyResponse> {
+    const res = await fetch(`${API_BASE_URL}/v1/public/bookings/${bookingId}/payment-verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        throw new Error(await parseErrorMessage(res));
+    }
+    return res.json();
+}
+
+/** Lazily loads Razorpay's Checkout script once and caches the promise. */
+let razorpayScriptPromise: Promise<void> | null = null;
+export function loadRazorpayScript(): Promise<void> {
+    if (window.Razorpay) return Promise.resolve();
+    if (razorpayScriptPromise) return razorpayScriptPromise;
+    razorpayScriptPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => {
+            razorpayScriptPromise = null;
+            reject(new Error('Could not load the payment form — check your connection and try again.'));
+        };
+        document.body.appendChild(script);
+    });
+    return razorpayScriptPromise;
+}
+
+declare global {
+    interface Window {
+        Razorpay: new (options: Record<string, unknown>) => {
+            open: () => void;
+            on?: (event: string, handler: (response: unknown) => void) => void;
+        };
+    }
 }

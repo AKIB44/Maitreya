@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
-import { CalendarIcon, Minus, Plus, CheckCircle2, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CalendarIcon, Minus, Plus, CheckCircle2, Loader2, PartyPopper, CreditCard } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -18,9 +18,27 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { fetchRoomTypes, submitBookingIntake, type RoomType } from '@/lib/bookingApi';
+import {
+    fetchRoomTypes,
+    submitBookingIntake,
+    createPaymentOrder,
+    verifyPayment,
+    loadRazorpayScript,
+    type RoomType,
+} from '@/lib/bookingApi';
 import { toast } from 'sonner';
+
+interface StayInfo {
+    checkIn: Date;
+    checkOut: Date;
+    guests: number;
+    roomTypeName: string | null;
+}
 
 const toIsoDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
@@ -40,18 +58,98 @@ const Booking = () => {
     const [notes, setNotes] = useState('');
     const [website, setWebsite] = useState(''); // honeypot
     const [formError, setFormError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<{ requestId: string; message: string } | null>(null);
+    const [confirmation, setConfirmation] = useState<{
+        requestId: string;
+        message: string;
+    } & StayInfo | null>(null);
+
+    const [pendingPayment, setPendingPayment] = useState<{
+        bookingId: string;
+        amount: number;
+        currency: string;
+    } & StayInfo | null>(null);
+    const [isStartingPayment, setIsStartingPayment] = useState(false);
+    const [paymentError, setPaymentError] = useState<string | null>(null);
 
     const { data: roomTypes, isLoading: roomTypesLoading, isError: roomTypesError } = useQuery<RoomType[]>({
         queryKey: ['room-types'],
         queryFn: fetchRoomTypes,
     });
 
+    const startPayment = async (bookingId: string, amount: number, currency: string, stayInfo: StayInfo) => {
+        setPaymentError(null);
+        setIsStartingPayment(true);
+        try {
+            await loadRazorpayScript();
+            const order = await createPaymentOrder(bookingId);
+            setIsStartingPayment(false);
+
+            const rzp = new window.Razorpay({
+                key: order.key_id,
+                amount: Math.round(order.amount * 100),
+                currency: order.currency,
+                name: 'Maitreya Beach Resort',
+                description: 'Booking advance payment',
+                order_id: order.order_id,
+                prefill: {
+                    name: name.trim(),
+                    contact: phone.trim(),
+                    email: email.trim() || undefined,
+                },
+                theme: { color: '#D4AF37' },
+                handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
+                    try {
+                        const result = await verifyPayment(bookingId, {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                        });
+                        setConfirmation({ requestId: bookingId, message: result.message, ...stayInfo });
+                        setPendingPayment(null);
+                        setPaymentError(null);
+                    } catch (err) {
+                        const msg = err instanceof Error ? err.message : 'Payment verification failed';
+                        setPaymentError(`Payment was received but we couldn't confirm it automatically (${msg}). Our team will verify and confirm your booking shortly.`);
+                        toast.error('Payment verification needs a manual check — we\'ll follow up shortly.');
+                    }
+                },
+                modal: {
+                    ondismiss: () => {
+                        setPaymentError('Payment was not completed. Your request is saved — you can retry payment below whenever you\'re ready.');
+                    },
+                },
+            });
+            rzp.on?.('payment.failed', (resp: { error?: { description?: string } }) => {
+                setPaymentError(resp?.error?.description || 'Payment failed. Please try again.');
+            });
+            rzp.open();
+        } catch (err) {
+            setIsStartingPayment(false);
+            setPaymentError(err instanceof Error ? err.message : 'Could not start payment right now');
+        }
+    };
+
     const bookingMutation = useMutation({
         mutationFn: submitBookingIntake,
         onSuccess: (data) => {
-            setSuccessMessage({ requestId: data.request_id, message: data.message });
             setFormError(null);
+            const stayInfo: StayInfo = {
+                checkIn: checkIn!,
+                checkOut: checkOut!,
+                guests: adults + children,
+                roomTypeName: roomTypes?.find((rt) => rt.id === roomTypeId)?.name ?? null,
+            };
+            if (data.payment_required) {
+                setPendingPayment({
+                    bookingId: data.request_id,
+                    amount: data.advance_amount,
+                    currency: data.currency,
+                    ...stayInfo,
+                });
+                startPayment(data.request_id, data.advance_amount, data.currency, stayInfo);
+            } else {
+                setConfirmation({ requestId: data.request_id, message: data.message, ...stayInfo });
+            }
         },
         onError: (err: Error) => {
             setFormError(err.message);
@@ -100,7 +198,17 @@ const Booking = () => {
         setPhone('');
         setEmail('');
         setNotes('');
-        setSuccessMessage(null);
+    };
+
+    const closeConfirmation = () => {
+        setConfirmation(null);
+        resetForm();
+    };
+
+    const cancelPendingPayment = () => {
+        setPendingPayment(null);
+        setPaymentError(null);
+        resetForm();
     };
 
     const today = new Date();
@@ -124,8 +232,8 @@ const Booking = () => {
                                 Check Availability &amp; Request Your Booking
                             </h3>
                             <p className="text-resort-dark/80">
-                                Tell us your travel dates and preferences. Our front desk will confirm your booking
-                                over phone or WhatsApp shortly after you submit this request.
+                                Tell us your travel dates and preferences, then pay a small advance to confirm your
+                                booking instantly — no waiting for a callback.
                             </p>
                         </motion.div>
 
@@ -136,22 +244,51 @@ const Booking = () => {
                             viewport={{ once: true }}
                             className="max-w-3xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-10"
                         >
-                            {successMessage ? (
+                            {pendingPayment ? (
                                 <div className="text-center py-10">
-                                    <CheckCircle2 className="mx-auto text-resort-gold mb-4" size={56} />
+                                    <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-resort-gold/10">
+                                        <CreditCard className="text-resort-gold" size={32} />
+                                    </div>
                                     <h4 className="font-playfair text-2xl font-bold text-resort-dark mb-3">
-                                        Request Received!
+                                        Complete Your Advance Payment
                                     </h4>
-                                    <p className="text-resort-dark/80 mb-2">{successMessage.message}</p>
-                                    <p className="text-sm text-resort-dark/60 mb-6">
-                                        Reference ID: <span className="font-mono">{successMessage.requestId}</span>
+                                    <p className="text-resort-dark/80 mb-1">
+                                        Pay <span className="font-semibold">₹{pendingPayment.amount.toLocaleString('en-IN')}</span> now to confirm your booking instantly.
                                     </p>
-                                    <Button onClick={resetForm} variant="outline" className="border-resort-gold text-resort-gold hover:bg-resort-gold/10">
-                                        Make Another Request
-                                    </Button>
+                                    <p className="text-xs text-resort-dark/50 mb-6">
+                                        Reference ID: <span className="font-mono">{pendingPayment.bookingId}</span>
+                                    </p>
+
+                                    {paymentError && (
+                                        <p className="text-sm text-red-600 mb-4 max-w-sm mx-auto">{paymentError}</p>
+                                    )}
+
+                                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                        <Button
+                                            variant="outline"
+                                            onClick={cancelPendingPayment}
+                                            className="border-resort-gold text-resort-gold hover:bg-resort-gold/10"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={() => startPayment(pendingPayment.bookingId, pendingPayment.amount, pendingPayment.currency, pendingPayment)}
+                                            disabled={isStartingPayment}
+                                            className="bg-resort-gold hover:bg-resort-gold/90 text-white"
+                                        >
+                                            {isStartingPayment ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Starting…
+                                                </>
+                                            ) : (
+                                                'Pay Advance Now'
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit} className="space-y-8">
+                            <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Honeypot field — hidden from real users */}
                                     <input
                                         type="text"
@@ -371,13 +508,13 @@ const Booking = () => {
                                                 Submitting…
                                             </>
                                         ) : (
-                                            'Request Booking'
+                                            'Request Booking & Pay Advance'
                                         )}
                                     </Button>
 
                                     <p className="text-xs text-center text-resort-dark/50">
-                                        This sends a booking request to our front desk — we'll confirm availability and
-                                        reach out via phone or WhatsApp. No payment is required now.
+                                        An advance payment is required to confirm your booking instantly — you'll be
+                                        taken to a secure Razorpay checkout right after this step.
                                     </p>
                                 </form>
                             )}
@@ -385,6 +522,75 @@ const Booking = () => {
                     </div>
                 </section>
             </main>
+
+            <Dialog open={!!confirmation} onOpenChange={(open) => { if (!open) closeConfirmation(); }}>
+                <DialogContent className="sm:max-w-md bg-white text-center">
+                    <AnimatePresence>
+                        {confirmation && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.4, ease: 'easeOut' }}
+                                className="py-6"
+                            >
+                                <motion.div
+                                    initial={{ scale: 0, rotate: -15 }}
+                                    animate={{ scale: 1, rotate: 0 }}
+                                    transition={{ delay: 0.15, type: 'spring', stiffness: 260, damping: 18 }}
+                                    className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-resort-gold/10"
+                                >
+                                    <CheckCircle2 className="text-resort-gold" size={40} />
+                                </motion.div>
+
+                                <h4 className="font-playfair text-2xl font-bold text-resort-dark mb-2 flex items-center justify-center gap-2">
+                                    Booking Confirmed <PartyPopper className="text-resort-gold" size={22} />
+                                </h4>
+                                <p className="text-resort-dark/80 mb-4">{confirmation.message}</p>
+
+                                <div className="bg-resort-cream rounded-lg p-4 mb-4 text-left text-sm space-y-1">
+                                    <p>
+                                        <span className="text-resort-dark/60">Stay:</span>{' '}
+                                        <span className="font-medium text-resort-dark">
+                                            {format(confirmation.checkIn, 'd MMM yyyy')} → {format(confirmation.checkOut, 'd MMM yyyy')}
+                                        </span>
+                                    </p>
+                                    <p>
+                                        <span className="text-resort-dark/60">Guests:</span>{' '}
+                                        <span className="font-medium text-resort-dark">{confirmation.guests}</span>
+                                    </p>
+                                    {confirmation.roomTypeName && (
+                                        <p>
+                                            <span className="text-resort-dark/60">Room Type:</span>{' '}
+                                            <span className="font-medium text-resort-dark">{confirmation.roomTypeName}</span>
+                                        </p>
+                                    )}
+                                </div>
+
+                                <p className="text-xs text-resort-dark/50 mb-6">
+                                    Reference ID: <span className="font-mono">{confirmation.requestId}</span>
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                    <Button
+                                        onClick={closeConfirmation}
+                                        variant="outline"
+                                        className="border-resort-gold text-resort-gold hover:bg-resort-gold/10"
+                                    >
+                                        Make Another Request
+                                    </Button>
+                                    <Button
+                                        onClick={closeConfirmation}
+                                        className="bg-resort-gold hover:bg-resort-gold/90 text-white"
+                                    >
+                                        Done
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </DialogContent>
+            </Dialog>
+
             <Footer />
         </div>
     );
